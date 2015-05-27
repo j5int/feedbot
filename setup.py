@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+from setuptools import find_packages
+
 import feedbot
 
 try:
@@ -18,13 +20,16 @@ requirements = [
     'humanize==0.5.1',
     'pytz==2014.10',
     'xmpppy==0.5.0rc1',
-    'git+git://git.code.sf.net/p/pythonjabberbot/code#egg=0.15'
+    'jabberbot==0.15',
+    'mock==1.0.1',
+    'beautifulsoup4==4.3.2',
 ]
 
 test_requirements = [
     'pytest==2.7.0',
     'pytest-cov==1.8.1',
     'mock==1.0.1',
+    # 'beautifulsoup4==4.3.2',
 ]
 
 setup(
@@ -35,12 +40,9 @@ setup(
     author="Liav Koren",
     author_email='liav@vmfamrms.com',
     url='https://github.com/vmfarms/feedbot',
-    packages=[
-        'feedbot',
-    ],
-    package_dir={'feedbot':
-                 'feedbot'},
+    packages=find_packages(),
     include_package_data=True,
+    dependency_links=['git+git://git.code.sf.net/p/pythonjabberbot/code.git#egg=jabberbot-0.15', ],
     install_requires=requirements,
     license="BSD",
     zip_safe=False,
@@ -50,13 +52,12 @@ setup(
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
         'Natural Language :: English',
-        "Programming Language :: Python :: 2",
-        'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.3',
-        'Programming Language :: Python :: 3.4',
+        'Operating System :: OS Independent',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+        'Topic :: Communications :: Chat',
+
     ],
-    test_suite='tests',
+    test_suite='feedbot.tests.test_feedbot.py',
     tests_require=test_requirements
 )
