@@ -1,36 +1,4 @@
-# TODO: figure out best settings solution.
-# setup for `python setup.py test`
-#
-
-'''
-Notes:
-
-If absolute_imports are turned on, bot.py cannot be launched from the directory
-it's located in. Instead, from the parent directory, do `python -m feedbot.bot`
-
-Also, note that import styles have to change when using absolute_import.
-
-Finally, VM Farms has forked JabberBot and there are some differences between
-our version and the published version. Diff the in-directory one with
-/Users/liavkoren/Envs/RSSBot/lib/python2.7/site-packages to see. Feedbot will
-need to be fixed to work with the published version of jabberbot.
-
-Currently:
-* bot.py can be imported intp a repl,
-* py.tests run
-* feedbot can be launched:
-    With absolute_import
-    * from dev/ with python -m feedbot.bot: NO
-        (AttributeError: '_ssl._SSLSocket' object has no attribute 'issuer'
-         -- it's probably using site-packages JabberBot)
-    * from within the package with python bot.py: YES
-
-    Without absolute_import:
-        * from dev/ with python -m feedbot.bot: YES
-        * from within the package with python bot.py: YES
-
-'''
-
+""" Contains the FeedBot class.  """
 
 from __future__ import absolute_import
 from abc import abstractmethod
