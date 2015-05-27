@@ -1,0 +1,10 @@
+wheel==0.23.0
+beautifulsoup4==4.3.2
+feedparser==5.1.3
+humanize==0.5.1
+# Most recent version of jabberbot, the Cheeseshop has an older version:
+git+git://git.code.sf.net/p/pythonjabberbot/code
+mock==1.0.1
+pytz==2014.10
+wsgiref==0.1.2
+xmpppy==0.5.0rc1
