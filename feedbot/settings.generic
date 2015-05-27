@@ -1,0 +1,25 @@
+BOT_NICKNAME = 'Feedbot'
+
+BOT_PASSWORD = 'password'
+
+BOT_USERNAME = 'feedbot@localhost'
+
+CHATROOMS = {
+    'default': 'default@localhost',
+}
+
+COMMAND_PREFIX = '/'
+
+# How many entries from each feed should be injected into the channel?
+DEFAULT_STORY_LIMIT = 5
+
+FEEDBOT_DATAFILE_PATH = 'feedbot.dat'
+
+# The number of entries we keep track of per feed to prevent repeating entries
+# in channel. If you don't want to filter out messages that have already been
+# displayed in the channel, set to 0.
+FEED_HISTORY_QUEUE_LENGTH = 200
+
+SERVER_IP = '0.0.0.0'
+
+TEST_DATAFILE_PATH = '/tmp'
