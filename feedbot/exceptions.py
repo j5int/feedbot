@@ -1,5 +1,3 @@
-
-
 class FeedbotError(Exception):
     """ Base class for all feedbot errors. """
 

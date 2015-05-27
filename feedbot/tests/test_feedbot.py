@@ -16,7 +16,7 @@ from ..bot import (
     FeedBot,
     utc_now,
 )
-from ..bot_exceptions import FeedDataError
+from ..exceptions import FeedDataError
 
 # Feedparser transforms many datetime strings into a tuple, see:
 # http://pythonhosted.org//feedparser/date-parsing.html

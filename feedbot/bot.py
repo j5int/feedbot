@@ -22,7 +22,7 @@ from jabberbot import (
 from pytz import utc
 
 # TODO: rename to exceptions
-from . import bot_exceptions as exceptions
+from . import exceptions
 from . import messages
 from . import settings
 
