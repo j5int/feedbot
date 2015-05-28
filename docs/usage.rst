@@ -3,7 +3,7 @@ Usage
 ========
 
 A minimal install of Feedbot needs to instantiate an instance, join a chat
-room and call the `serve_forever()` method. For example::
+room and call the `serve_forever()` method. For example, inside `test_bot.py`::
 
     import logging
     from feedbot import bot
@@ -26,3 +26,9 @@ room and call the `serve_forever()` method. For example::
         feedbot.muc_join_room(CHATROOM, BOT_NICKNAME)
         feedbot.serve_forever()
         logging.info("Feedbot is dead")
+
+
+In order to launch feedbot from a shell prompt simply call::
+
+    $ python test_bot.py
+

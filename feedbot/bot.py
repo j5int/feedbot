@@ -27,7 +27,6 @@ from .filters import (
 logger = logging.getLogger(__name__)
 
 
-
 class FeedBot(JabberBot):
     """ A Jabberbot for monitoring RSS/Atom feeds. """
 
@@ -50,6 +49,8 @@ class FeedBot(JabberBot):
         self.chatroom = chatroom
         self.bot_name = bot_name
         self.bot_password = bot_password
+        if 'command_prefix' not in kwargs:
+            kwargs['command_prefix'] = '/'
         super(FeedBot, self).__init__(bot_name, bot_password, *args, **kwargs)
         self._rss_data_file_path = settings.FEEDBOT_DATAFILE_PATH
         self.feeds = self._load_feed_data()

@@ -106,6 +106,10 @@ Before you submit a pull request, check that it meets these guidelines:
 Tips
 ----
 
-To run a subset of tests::
+Tests use pytest. To run them from the project root::
 
-    $ python -m unittest tests.test_feedbot
+    $ py.test feedbot
+
+Or::
+
+    $ Make test
