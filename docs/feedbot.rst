@@ -9,14 +9,6 @@ feedbot.bot module
     :undoc-members:
     :show-inheritance:
 
-feedbot.bot_exceptions module
------------------------------
-
-.. automodule:: feedbot.bot_exceptions
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 feedbot.exceptions module
 -------------------------
 
@@ -25,26 +17,18 @@ feedbot.exceptions module
     :undoc-members:
     :show-inheritance:
 
-feedbot.feedbot module
-----------------------
+feedbot.feed module
+-------------------------
 
-.. automodule:: feedbot.feedbot
+.. automodule:: feedbot.feed
     :members:
     :undoc-members:
     :show-inheritance:
 
-feedbot.messages module
------------------------
+feedbot.filters module
+-------------------------
 
-.. automodule:: feedbot.messages
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-feedbot.settings module
------------------------
-
-.. automodule:: feedbot.settings
+.. automodule:: feedbot.filters
     :members:
     :undoc-members:
     :show-inheritance:
