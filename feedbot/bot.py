@@ -1,19 +1,12 @@
 """ Contains the FeedBot class.  """
 
 from __future__ import absolute_import
-from abc import abstractmethod
 from collections import deque
-from datetime import (
-    datetime,
-    timedelta,
-)
+from datetime import datetime
+
 import json
 import logging
-import repr
-import sys
 
-from bs4 import BeautifulSoup
-import feedparser
 import humanize
 from jabberbot import (
     JabberBot,
@@ -21,256 +14,20 @@ from jabberbot import (
 )
 from pytz import utc
 
-# TODO: rename to exceptions
 from . import exceptions
 from . import messages
 from . import settings
-
+from .feed import Feed
+from .filters import (
+    ALLOWED_FILTER_TYPES,
+    AgeFilter,
+    NotFilter,
+)
 
 logger = logging.getLogger(__name__)
 
 
-class Feed(object):
-    """
-    A Feed provides a filtered stream of story entries.
 
-    Feeds use the Universal Feed Parser module to download and parse syndicated
-    feeds. Feeds must be initialized with a `name` and `URL` where the name is a
-    human- readable label which will be displayed in channel and the url points
-    to resource the Feed Parser will consume.
-
-    The FeedBot will create Feed instances in response to channel activity.
-
-    Args:
-        name (string): A human readable name for this feed, to display in the
-        chat channel.
-        url (string): The URL this feed will be parsing.
-        filters: An iterable container of `feedbot.filters`.
-
-    See Also:
-
-        Universal Feed Parser
-            http://pythonhosted.org//feedparser/introduction.html
-    """
-    def __init__(self, name, url, filters=None):
-        self.name = name
-        self.url = url
-        if not filters:
-            filters = []
-        self.filters = filters
-
-    def __repr__(self):
-        components = repr.repr(self.filters)
-        return '{0}(name={1}, url={2}, filters={3})'.format(type(self).__name__, self.name, self.url, components)
-
-    def _accept_entry(self, entry):
-        """ Given an RSS entry returns True if it passes all the Feed's filters. """
-        return all([feed_filter.discard_entry(entry) is False for feed_filter in self.filters])
-
-    def to_dict(self):
-        """ Serialize a Feed instance and its Filters to a dict. """
-        data_dict = {
-            'class': 'Feed',
-            'name': self.name,
-            'url': self.url,
-            'filters': [feed_filter.to_dict() for feed_filter in self.filters]}
-        return data_dict
-
-    @classmethod
-    def from_dict(cls, data_dict):
-        """
-        Given a data_dict, attempts to construct and return a Feed instance.
-
-        Args:
-            data_dict: a serialization dictionary.
-
-        Raises:
-            DeserializationError.
-        """
-        try:
-            assert data_dict['class'] == 'Feed'
-            feed_filters = []
-            for serialized_filter in data_dict['filters']:
-                filter_instance = FilterBase.from_dict(serialized_filter)
-                feed_filters.append(filter_instance)
-            return Feed(data_dict['name'], data_dict['url'], filters=feed_filters)
-        except (KeyError, ValueError, AssertionError):
-            raise exceptions.DeserializationError("Error parsing Filter json data.")
-
-    def get_raw_feed(self):
-        """
-        Return the unfiltered feed.
-
-        Raises:
-            BadFeedData: If Feed Parser detects a feed error.
-        """
-        feed = feedparser.parse(self.url)
-        # feed.bozo indicates that the feed's XML data is malformed
-        # See: http://pythonhosted.org//feedparser/bozo.html
-        if not feed.bozo:
-            return feed
-        raise exceptions.FeedDataError(feed.bozo_exception.message)
-
-    def get_filtered_feed(self):
-        """
-        Return a list of filtered entries.
-
-        Raises:
-            FeedDataError: If there are no entries in the steam.
-        """
-        stream = self.get_raw_feed()
-        if 'entries' in stream:
-            return [entry for entry in stream.entries if self._accept_entry(entry)]
-        raise exceptions.FeedDataError("Could not find entries in this stream.")
-
-    def add_filter(self, feed_filter):
-        """ Given a filter, add it to the feed. """
-        self.filters.append(feed_filter)
-
-    def remove_filter(self, feed_filter):
-        """ Remove a filter, remove it from the feed. """
-        if feed_filter == getattr(self, 'age_filter', None):
-            self.age_filter = None
-        self.filters.remove(feed_filter)
-
-    def get_filters(self):
-        """ Return a list of this Feed's filters. """
-        return [feed_filter for feed_filter in self.filters]
-
-    def get_filter_by_key(self, filter_index):
-        return self.filters[filter_index]
-
-    def set_age_filter(self, time_period):
-        """
-        Set the time period for an AgeFilter. Adds a filter if necessary.
-
-        Note:
-            This should be the main entry point for creating/setting AgeFilters,
-            because it usually makes sense to only have one AgeFilter per Feed.
-        """
-        if getattr(self, 'age_filter', None):
-            self.age_filter.set_window(time_period)
-        else:
-            self.age_filter = AgeFilter(time_period)
-        self.filters.append(self.age_filter)
-
-
-class FilterBase(object):
-    """ Base class for filters."""
-    def __init__(self, terms):
-        self.terms = terms.lower()
-
-    @abstractmethod
-    def discard_entry(self, entry):
-        """ Given an entry, return False if we don't want to display it. """
-
-    def to_dict(self):
-        return {'class': type(self).__name__}
-
-    @staticmethod
-    def from_dict(serialization_dict):
-        """ Given a dictionary of args, kwargs and the class name, returns a filter.
-
-        Args:
-            serialization_dict (dict): Should contain the arguments and keyword
-            arguments needed to construct the specific filter desired, along with
-            that filter's name.
-
-            The exact structure should be:
-            {
-                'class': <filter class name>,
-                'args': <list of filter arguments>,
-                'kwargs': <dict of keyword arguments>
-            }
-
-        Example:
-            >>> FilterBase.from_dict({'class': 'NotFilter', 'args': ['foobar quuxquux']})
-            >>> NotFilter('foobar quuxquux')
-        """
-        args = serialization_dict.get('args', [])
-        kwargs = serialization_dict.get('kwargs', {})
-        cls = FilterBase._get_filter_class(serialization_dict.get('class'))
-        try:
-            return cls(*args, **kwargs)
-        except TypeError:
-            raise ValueError("Bad args, kwargs or class name.")
-
-    @staticmethod
-    def _get_filter_class(filter_class_name):
-        """ Given the name of a filter class, attempts to return it. """
-        feedbot_module = sys.modules[__name__]
-        return getattr(feedbot_module, filter_class_name)
-
-
-# Change name to ExcludeFilter
-class NotFilter(FilterBase):
-    """
-    Blacklists a term from the Feed.
-
-    Initialize NotFilter with a string. If the string is present in an entry's
-    summary or title, it will remove it from the Feed.
-    """
-    def __repr__(self):
-        return "{0}('{1}')".format(type(self).__name__, self.terms)
-
-    def discard_entry(self, entry):
-        """ Given an entry, returns True if the blacklisted string is in the entry. """
-        string = "%s %s " % (entry.summary.lower(), entry.title.lower())
-        return self.terms in BeautifulSoup(string).get_text()
-
-    def to_dict(self):
-        """ Serialize the filter to a dict. """
-        serialized_data = super(NotFilter, self).to_dict()
-        serialized_data['args'] = [self.terms]
-        return serialized_data
-
-
-class AgeFilter(FilterBase):
-    """
-    Blacklists entries that are older than the AgeFilter's minutes.
-
-    Initialize an AgeFilter with a dictionary of {minutes: <int>}.
-    """
-    def __init__(self, minutes=None):
-        self.window = timedelta(minutes=minutes or 5)
-
-    def __repr__(self):
-        return "{0}({1})".format(type(self).__name__, self.window)
-
-    def discard_entry(self, entry, fail_closed=False):
-        """
-        Return if the entry was published before the filter's age cutoff.
-
-        If the entry has no `published_parsed` attribute, the filter can either
-        fail-open (allow the entry to continue through) or fail-closed (discard
-        the entry). This behavior is specified by the fail_closed kwarg, which
-        defaults to False.
-        """
-        if 'published_parsed' in entry:
-            published_time = struct_to_datetime(entry['published_parsed'])
-            return utc_now() - published_time >= self.window
-        return fail_closed
-
-    def to_dict(self):
-        """ Serialize the filter to a dict. """
-        serialized_data = super(AgeFilter, self).to_dict()
-        serialized_data['kwargs'] = {'minutes': self.get_window()}
-        return serialized_data
-
-    def set_window(self, minutes):
-        """ Set the time window in minutes. """
-        self.window = timedelta(minutes=minutes)
-        return True
-
-    def get_window(self):
-        """ Get the time window in minutes. """
-        return self.window.seconds/60.0
-
-
-ALLOWED_FILTER_TYPES = ['not', 'age']
-
-
-# Implement __iter__ and __getitem__ on FeedBot to make it dict-like?
 class FeedBot(JabberBot):
     """ A Jabberbot for monitoring RSS/Atom feeds. """
 
@@ -293,7 +50,6 @@ class FeedBot(JabberBot):
         self.chatroom = chatroom
         self.bot_name = bot_name
         self.bot_password = bot_password
-        # self.server = kwargs.pop('server')
         super(FeedBot, self).__init__(bot_name, bot_password, *args, **kwargs)
         self._rss_data_file_path = settings.FEEDBOT_DATAFILE_PATH
         self.feeds = self._load_feed_data()

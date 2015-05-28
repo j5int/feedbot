@@ -9,12 +9,14 @@ import pytest
 
 from .. import messages
 from ..bot import (
-    AgeFilter,
-    Feed,
-    FilterBase,
-    NotFilter,
     FeedBot,
     utc_now,
+)
+from ..feed import Feed
+from ..filters import (
+    AgeFilter,
+    FilterBase,
+    NotFilter,
 )
 from ..exceptions import FeedDataError
 
@@ -163,30 +165,27 @@ class TestFeedBot(object):
         EXPECTED_MESSAGE = messages.FEED_EXISTS_ERROR.format(name=feed_name, url=feed_url)
         send_to_channel.assert_called_with(EXPECTED_MESSAGE)
 
-    @patch('feedbot.bot.feedparser')
+    @patch('feedbot.bot.Feed')
     @patch('feedbot.bot.FeedBot.send_groupchat_message')
-    def test_add_bad_feed(self, send_to_channel, feedparser):
+    def test_add_bad_feed(self, send_to_channel, Feed):
         """ Assert that the channel is alerted if there's a feed error. """
-        mock_feedparser_response = Mock()
-        mock_feedparser_response.bozo = True
+        mock_feed = Mock()
         EXCEPTION_MESSAGE = "foobar"
-        mock_feedparser_response.bozo_exception.message = EXCEPTION_MESSAGE
-        feedparser.parse.return_value = mock_feedparser_response
+        mock_feed.get_raw_feed.side_effect = FeedDataError(EXCEPTION_MESSAGE)
+        Feed.return_value = mock_feed
         self.bot.add_feed("", "unique-name http://www.valid.url.com")
 
         EXPECTED_MESSAGE = messages.FEED_PARSE_ERROR.format(error=EXCEPTION_MESSAGE)
         send_to_channel.assert_called_with(EXPECTED_MESSAGE)
 
-    @patch('feedbot.bot.feedparser')
+    @patch('feedbot.bot.Feed')
     @patch('feedbot.bot.FeedBot._save_feed_data')
     @patch('feedbot.bot.FeedBot.send_groupchat_message')
-    def test_add_feed_succeeds(self, send_to_channel, save_data, feedparser):
+    def test_add_feed_succeeds(self, send_to_channel, save_data, Feed):
         """ Assert that valid args add a feed to the bot. """
-        mock_feedparser_response = Mock()
-        mock_feedparser_response.bozo = False
-        feedparser.parse.return_value = mock_feedparser_response
         EXPECTED_FEED_NAME = "unique-name"
         EXPECTED_FEED_URL = "http://www.valid.url.com"
+        Feed.return_value = Mock(name=EXPECTED_FEED_NAME, url=EXPECTED_FEED_URL)
         self.bot.add_feed("", "unique-name http://www.valid.url.com")
 
         assert EXPECTED_FEED_NAME in self.bot.feeds
