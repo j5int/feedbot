@@ -44,7 +44,7 @@ setup(
     setup_requires=["setuptools_git >= 0.3"],
     dependency_links=[
         'git+git://git.code.sf.net/p/pythonjabberbot/code.git#egg=jabberbot-0.15',
-        'git+https://github.com/ArchipelProject/xmpppy.git'
+        'git+https://github.com/ArchipelProject/xmpppy.git#egg=xmpppy-0.5.2'
         ],
     install_requires=requirements,
     license="BSD",
