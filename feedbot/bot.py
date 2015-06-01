@@ -3,9 +3,9 @@
 from __future__ import absolute_import
 from collections import deque
 from datetime import datetime
-
 import json
 import logging
+import os
 
 import humanize
 from jabberbot import (
@@ -52,18 +52,21 @@ class FeedBot(JabberBot):
         if 'command_prefix' not in kwargs:
             kwargs['command_prefix'] = '/'
         super(FeedBot, self).__init__(bot_name, bot_password, *args, **kwargs)
-        self._rss_data_file_path = settings.FEEDBOT_DATAFILE_PATH
+        self._init_data_dir()
         self.feeds = self._load_feed_data()
-        self.entry_history = deque(maxlen=settings.FEED_HISTORY_QUEUE_LENGTH)
+        queue_length = int(os.getenv('FEED_HISTORY_QUEUE_LENGTH', 200))
+        self.entry_history = deque(maxlen=queue_length)
 
     def __repr__(self):
         return "{0}({1}, {2})".format(type(self).__name__, self.chatroom, self.bot_name)
 
     def _add_entry_to_history(self, entry):
+        """ Track an entry that has already been displayed. """
         if entry.link not in self.entry_history:
             self.entry_history.append(entry.link)
 
     def _seen_entry(self, entry):
+        """ Has an entry been displayed? """
         return entry.link in self.entry_history
 
     def _load_feed_data(self):
@@ -77,15 +80,38 @@ class FeedBot(JabberBot):
         """
         feeds = {}
         try:
-            with open(settings.FEEDBOT_DATAFILE_PATH, 'r') as file:
+            with open(self.data_file, 'r') as file:
                 serialized_feed_data = json.load(file)
                 for feed_data in serialized_feed_data:
                     deserialized_feed = Feed.from_dict(feed_data)
                     feeds[deserialized_feed.name] = deserialized_feed
         except:
-            message = messages.FEED_DATA_LOAD_ERROR.format(path=settings.FEEDBOT_DATAFILE_PATH)
+            message = messages.FEED_DATA_LOAD_ERROR.format(path=self.data_file)
             self.send_groupchat_message(message)
         return feeds
+
+    def _init_data_dir(self):
+        """ Ensure the data directory exists and set self.data_file. """
+        user_defined_data_dir = os.getenv('FEEDBOT_DATA_DIRECTORY')
+        if user_defined_data_dir:
+            self._create_data_file(user_defined_data_dir)
+        else:
+            home_dir = os.getenv('HOME')
+            if home_dir:
+                data_dir = os.path.join(home_dir, '.feedbot')
+                self._create_data_file(data_dir)
+            else:
+                self.send_groupchat_message(messages.DATA_DIR_ERROR)
+                self._create_data_file('/tmp/feedbot')
+
+    def _create_data_file(self, feedbot_data_dir):
+        """ Given a path string, ensure that the feedbot data file exists. """
+        if not os.path.exists(feedbot_data_dir):
+            os.makedirs(feedbot_data_dir)
+        data_file = os.path.join(feedbot_data_dir, os.getenv('FEEDBOT_CONF_FILENAME', 'feedbot.conf'))
+        if not os.path.exists(data_file):
+            open(data_file, 'a').close()
+        self.data_file = data_file
 
     def _save_feed_data(self):
         """
@@ -97,19 +123,20 @@ class FeedBot(JabberBot):
         """
         try:
             feed_data = [feed.to_dict() for feed in self.feeds.values()]
-            with open(settings.FEEDBOT_DATAFILE_PATH, 'r+') as file:
+            with open(self.data_file, 'r+') as file:
                 file.write(json.dumps(feed_data))
                 return True
         except Exception as e:
             error = getattr(e, 'message', '')
             message = messages.FEED_SAVE_DATA_ERROR.format(
                 error=error,
-                data_path=settings.FEEDBOT_DATAFILE_PATH
+                data_path=self.data_file
             )
             self.send_groupchat_message(message)
             raise IOError()
 
     def get_feed_urls(self):
+        """ Return URLs of Feeds. """
         return [feed.url for feed in self.feeds.values()]
 
     @botcmd
@@ -174,6 +201,7 @@ class FeedBot(JabberBot):
             self.send_groupchat_message(messages.FEEDS_DO_NOT_EXIST)
 
     def _url2name(self, url):
+        """ Given a URL return the name of the Feed. """
         for name, feed in self.feeds.items():
             if feed.url == url:
                 return name
@@ -238,6 +266,7 @@ class FeedBot(JabberBot):
             self.send_groupchat_message(messages.FEED_NOT_FOUND_ERROR)
 
     def get_feeds(self):
+        """ Return the URLs of all Feeds. """
         return self.feeds.values()
 
     def get_feed_by_name(self, name):
@@ -290,7 +319,7 @@ class FeedBot(JabberBot):
                 entries_limit = int(entries_limit)
             elif len(args) == 1:
                 feed_name, = args
-                entries_limit = settings.DEFAULT_STORY_LIMIT
+                entries_limit = int(os.environ.get('FEEDBOT_STORY_LIMIT', 5))
 
             feed = self.feeds[feed_name]
             feed_entries = feed.get_filtered_feed()
@@ -309,6 +338,7 @@ class FeedBot(JabberBot):
             self.send_groupchat_message(messages.FEED_NOT_FOUND_ERROR)
 
     def _print_feed(self, feed_name, entries):
+        """ Print a Feed to the channel. """
         self.send_groupchat_message(messages.FEED_HEADER.format(feed_name=feed_name))
         for entry in entries:
             if self._seen_entry(entry):
@@ -318,6 +348,7 @@ class FeedBot(JabberBot):
             self.send_groupchat_message(messages.ENTRY_SEPERATOR)
 
     def _print_entry(self, entry):
+        """ Print a Feed entry to the channel. """
         fields = ['title', 'published', 'authors', 'link', 'summary']
         for field in fields:
             if field in entry:
