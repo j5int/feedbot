@@ -19,7 +19,7 @@ requirements = [
     'feedparser==5.1.3',
     'humanize==0.5.1',
     'pytz==2014.10',
-    'xmpppy==0.5.0rc1',
+    'xmpppy==0.5.2',
     'jabberbot==0.15',
     'mock==1.0.1',
     'beautifulsoup4==4.3.2',
@@ -29,7 +29,6 @@ test_requirements = [
     'pytest==2.7.0',
     'pytest-cov==1.8.1',
     'mock==1.0.1',
-    # 'beautifulsoup4==4.3.2',
 ]
 
 setup(
@@ -42,7 +41,11 @@ setup(
     url='https://github.com/vmfarms/feedbot',
     packages=find_packages(),
     include_package_data=True,
-    dependency_links=['git+git://git.code.sf.net/p/pythonjabberbot/code.git#egg=jabberbot-0.15', ],
+    setup_requires=["setuptools_git >= 0.3"],
+    dependency_links=[
+        'git+git://git.code.sf.net/p/pythonjabberbot/code.git#egg=jabberbot-0.15',
+        'git+https://github.com/ArchipelProject/xmpppy.git'
+        ],
     install_requires=requirements,
     license="BSD",
     zip_safe=False,
@@ -52,10 +55,13 @@ setup(
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
         'Natural Language :: English',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
         'Operating System :: OS Independent',
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Topic :: Communications :: Chat',
+        'Topic :: Utilities',
 
     ],
     test_suite='feedbot.tests.test_feedbot.py',
