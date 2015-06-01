@@ -16,13 +16,21 @@ with open('HISTORY.rst') as history_file:
     history = history_file.read().replace('.. :changelog:', '')
 
 requirements = [
+    'jabberbot==0.15',
+    'beautifulsoup4==4.3.2',
     'feedparser==5.1.3',
     'humanize==0.5.1',
+    'docutils==0.12',
+    'Jinja2==2.7.3',
+    'MarkupSafe==0.23',
+    'pockets==0.2.4',
+    'Pygments==2.0.2',
     'pytz==2014.10',
+    'six==1.9.0',
+    'Sphinx==1.2.3',
+    'sphinxcontrib-napoleon==0.3.6',
+    'wheel==0.24.0',
     'xmpppy==0.5.2',
-    'jabberbot==0.15',
-    'mock==1.0.1',
-    'beautifulsoup4==4.3.2',
 ]
 
 test_requirements = [
