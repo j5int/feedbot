@@ -11,6 +11,8 @@ ADDED_FILTER = 'Added: {filter_type} `{filter_term}` filter to the {feed_name} f
 
 CURRENTLY_MONITORING = 'Currently monitoring: '
 
+DATA_DIR_ERROR = "Could not find a $HOME env var, pleas set $FEEDBOT_DATA_DIRECTORY env var. Using /tmp/feedbot for now."
+
 ENTRY_FIELD_TEMPLATE = '<b>{field_name} :</b>  {field_value}'
 
 ENTRY_PUBLISHED_FIELD_TEMPLATE = ' -= About {publication_time} =- \n'
