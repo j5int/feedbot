@@ -1,4 +1,4 @@
-
+""" Message strings that are sent to the chatroom. """
 
 ADD_FILTER_HELP = '\n'.join([
     'To filter an RSS feed use: `/filter <name> not: <search term>`,',

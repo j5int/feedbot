@@ -1,4 +1,25 @@
-""" Contains the FeedBot class.  """
+"""
+Contains the FeedBot class.
+
+Note:
+    This documentation isn't in the body of the FeedBot class because Jabberbot
+    turns docstrings into chatroom help-text.
+
+FeedBot is a JabberBot which sits in a chatroom and monitors RSS/Atom feeds for
+you.
+
+Args:
+    chatroom (string): the chatroom name and server, formatted '<name>@<server>',
+        eg: 'test_chatroom@acme.industries.com'
+    bot_name (string): the username for the bot
+    bot_password (string): the password the bot should use with the chat server.
+
+In order for the FeedBot to have persistence it saves feed/filter data to a
+local flat-file via Pickle. You must define this path with the
+FEEDBOT_DATAFILE_PATH, setting or suffer the consequences! (The consequences
+are you'll lose your feeds when the bot exits.)
+
+ """
 
 from __future__ import absolute_import
 from collections import deque
@@ -16,7 +37,6 @@ from pytz import utc
 
 from . import exceptions
 from . import messages
-from . import settings
 from .feed import Feed
 from .filters import (
     ALLOWED_FILTER_TYPES,
@@ -28,23 +48,7 @@ logger = logging.getLogger(__name__)
 
 
 class FeedBot(JabberBot):
-    """ A Jabberbot for monitoring RSS/Atom feeds. """
-
-    """
-    (This second docstring is to prevent jabberbot from adding the rest of the
-     documentation in the channel when there's a `/help` command.)
-
-    Args:
-        chatroom (string): the chatroom name and server, formatted '<name>@<server>',
-            eg: 'test_chatroom@acme.industries.com'
-        bot_name (string): the username for the bot
-        bot_password (string): the password the bot should use with the chat server.
-
-    In order for the FeedBot to have persistence it saves feed/filter data to a
-    local flat-file via Pickle. You must define this path with the
-    FEEDBOT_DATAFILE_PATH, setting or suffer the consequences! (The consequences
-    are you'll lose your feeds when the bot exits.)
-    """
+    """ A JabberBot to monitor RSS/Atom feeds. """
     def __init__(self, chatroom, bot_name, bot_password, *args, **kwargs):
         self.chatroom = chatroom
         self.bot_name = bot_name
@@ -80,12 +84,12 @@ class FeedBot(JabberBot):
         """
         feeds = {}
         try:
-            with open(self.data_file, 'r') as file:
-                serialized_feed_data = json.load(file)
+            with open(self.data_file, 'r') as data_file:
+                serialized_feed_data = json.load(data_file)
                 for feed_data in serialized_feed_data:
                     deserialized_feed = Feed.from_dict(feed_data)
                     feeds[deserialized_feed.name] = deserialized_feed
-        except:
+        except:  # We never want to blow up on instantiating the bot.
             message = messages.FEED_DATA_LOAD_ERROR.format(path=self.data_file)
             self.send_groupchat_message(message)
         return feeds
@@ -123,11 +127,11 @@ class FeedBot(JabberBot):
         """
         try:
             feed_data = [feed.to_dict() for feed in self.feeds.values()]
-            with open(self.data_file, 'r+') as file:
-                file.write(json.dumps(feed_data))
+            with open(self.data_file, 'r+') as data_file:
+                data_file.write(json.dumps(feed_data))
                 return True
-        except Exception as e:
-            error = getattr(e, 'message', '')
+        except Exception as exception:
+            error = getattr(exception, 'message', '')
             message = messages.FEED_SAVE_DATA_ERROR.format(
                 error=error,
                 data_path=self.data_file
@@ -217,11 +221,11 @@ class FeedBot(JabberBot):
         feed = args.strip()
 
         if feed in self.feeds:
-            del(self.feeds[feed])
+            del self.feeds[feed]
             message = messages.FEED_DELETED.format(feed_name=feed)
         elif feed in self.get_feed_urls():
             feed_name = self._url2name(feed)
-            del(self.feeds[feed_name])
+            del self.feeds[feed_name]
             message = messages.FEED_DELETED.format(feed_name=feed_name)
         else:
             # this is an unrecognized feed
@@ -252,7 +256,10 @@ class FeedBot(JabberBot):
             if valid_filter:
                 new_filter = NotFilter(filter_term)
                 feed.add_filter(new_filter)
-                message = messages.ADDED_FILTER.format(filter_type=filter_type, filter_term=filter_term, feed_name=feed_name)
+                message = messages.ADDED_FILTER.format(
+                    filter_type=filter_type,
+                    filter_term=filter_term,
+                    feed_name=feed_name)
                 self._save_feed_data()
                 self.send_groupchat_message(message)
             else:
@@ -395,6 +402,7 @@ class FeedBot(JabberBot):
             self.send_groupchat_message(messages.SET_AGE_FILTER_HELP)
 
     def send_groupchat_message(self, text):
+        """ Send a message to the chatroom. """
         self.send(self.chatroom, text, message_type='groupchat')
 
 
@@ -433,18 +441,3 @@ def pub_time_to_string(time_struct):
     publication_time = struct_to_datetime(time_struct)
     delta = time_delta_from_now(publication_time)
     return humanize.naturaltime(delta).capitalize()
-
-if __name__ == '__main__':
-    chatroom = settings.CHATROOMS['default']
-    rssbot = FeedBot(
-        chatroom,
-        settings.BOT_USERNAME,
-        settings.BOT_PASSWORD,
-        server=settings.SERVER_IP,
-        command_prefix=settings.COMMAND_PREFIX,
-    )
-
-    logger.info("RssBot is alive")
-    rssbot.muc_join_room(chatroom, settings.BOT_NICKNAME)
-    rssbot.serve_forever()
-    logger.info("RssBot is dead")

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+""" Setup file for feedbot distro. """
 from setuptools import find_packages
 
 import feedbot
@@ -10,12 +11,12 @@ except ImportError:
 
 
 with open('README.rst') as readme_file:
-    readme = readme_file.read()
+    README = readme_file.read()
 
 with open('HISTORY.rst') as history_file:
-    history = history_file.read().replace('.. :changelog:', '')
+    HISTORY = history_file.read().replace('.. :changelog:', '')
 
-requirements = [
+REQUIREMENTS = [
     'jabberbot==0.15',
     'beautifulsoup4==4.3.2',
     'feedparser==5.1.3',
@@ -33,7 +34,7 @@ requirements = [
     'xmpppy==0.5.2',
 ]
 
-test_requirements = [
+TEST_REQUIREMENTS = [
     'pytest==2.7.0',
     'pytest-cov==1.8.1',
     'mock==1.0.1',
@@ -43,7 +44,7 @@ setup(
     name='feedbot',
     version=feedbot.__version__,
     description="A Python Jabberbot project to monitor RSS feeds in a chatroom.",
-    long_description=readme + '\n\n' + history,
+    long_description=README + '\n\n' + HISTORY,
     author="Liav Koren",
     author_email='liav@vmfamrms.com',
     url='https://github.com/vmfarms/feedbot',
@@ -54,7 +55,7 @@ setup(
         'git+git://git.code.sf.net/p/pythonjabberbot/code.git#egg=jabberbot-0.15',
         'git+https://github.com/ArchipelProject/xmpppy.git#egg=xmpppy-0.5.2'
         ],
-    install_requires=requirements,
+    install_requires=REQUIREMENTS,
     license="BSD",
     zip_safe=False,
     keywords='feedbot',
@@ -73,5 +74,5 @@ setup(
 
     ],
     test_suite='feedbot.tests.test_feedbot.py',
-    tests_require=test_requirements
+    tests_require=TEST_REQUIREMENTS
 )
