@@ -112,7 +112,7 @@ class FeedBot(JabberBot):
         """ Given a path string, ensure that the feedbot data file exists. """
         if not os.path.exists(feedbot_data_dir):
             os.makedirs(feedbot_data_dir)
-        data_file = os.path.join(feedbot_data_dir, os.getenv('FEEDBOT_CONF_FILENAME', 'feedbot.conf'))
+        data_file = os.path.join(feedbot_data_dir, os.getenv('FEEDBOT_DATA_FILENAME', 'feedbot.conf'))
         if not os.path.exists(data_file):
             open(data_file, 'a').close()
         self.data_file = data_file
