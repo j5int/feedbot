@@ -18,7 +18,7 @@ class Feed(object):
 
     Feeds use the Universal Feed Parser module to download and parse syndicated
     feeds. Feeds must be initialized with a `name` and `URL` where the name is a
-    human- readable label which will be displayed in channel and the url points
+    human- readable label which will be displayed in channel and the URL points
     to resource the Feed Parser will consume.
 
     The FeedBot will create Feed instances in response to channel activity.
