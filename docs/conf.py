@@ -55,7 +55,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Python-feedbot'
+project = u'feedbot'
 copyright = u'2015, VM Farms'
 
 # The version info for the project you're documenting, acts as replacement
@@ -219,7 +219,7 @@ latex_elements = {
 # [howto/manual]).
 latex_documents = [
     ('index', 'feedbot.tex',
-     u'Python-feedbot Documentation',
+     u'feedbot Documentation',
      u'Liav Koren', 'manual'),
 ]
 
@@ -250,7 +250,7 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('index', 'feedbot',
-     u'Python-feedbot Documentation',
+     u'feedbot Documentation',
      [u'Liav Koren'], 1)
 ]
 
@@ -265,7 +265,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
     ('index', 'feedbot',
-     u'Python-feedbot Documentation',
+     u'feedbot Documentation',
      u'Liav Koren',
      'feedbot',
      'One line description of project.',

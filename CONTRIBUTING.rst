@@ -36,7 +36,7 @@ is open to whoever wants to implement it.
 Write Documentation
 ~~~~~~~~~~~~~~~~~~~
 
-Python-feedbot could always use more documentation, whether as part of the
+feedbot could always use more documentation, whether as part of the
 official Python-feedbot docs, in docstrings, or even on the web in blog posts,
 articles, and such.
 
