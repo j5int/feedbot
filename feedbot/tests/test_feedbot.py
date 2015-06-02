@@ -118,12 +118,13 @@ class TestFeed(TestSetupMixin, object):
 
 class TestFeedBot(object):
     """ Tests for the FeedBot class. """
-    @patch('feedbot.bot.settings.FEEDBOT_DATAFILE_PATH')
+    @patch('feedbot.bot.FeedBot._init_data_dir')  # prevents tests from writing files.
+    @patch('feedbot.bot.FeedBot._load_feed_data')
     @patch('feedbot.bot.FeedBot.connect')
-    def setup(self, Jabberbot, feed_data_path_setting):
+    def setup(self, Jabberbot, load_data, touch_file_system):
+        load_data.return_value = {}
         self.bot = FeedBot('test chatroom', 'test bot name', 'test bot password', )
-        # Make sure that we've prevented the bot from loading saved feeds:
-        assert not self.bot.feeds
+        assert not self.bot.feeds, 'Feedbot tests may be accessing real saved data. Exiting!'
 
         self.first_feed = Feed('First-test-Feed', 'http://test.org/fake/rss/feed/url.xml')
         self.not_filter = NotFilter('foobar')
@@ -138,10 +139,6 @@ class TestFeedBot(object):
         assert len(self.bot.get_feed_urls()) == 2
         assert self.first_feed.url in self.bot.get_feed_urls()
         assert self.second_feed.url in self.bot.get_feed_urls()
-
-    # @patch('.settings.FEEDBOT_DATAFILE_PATH')
-    # def test_load_feeds(self, data_path):
-    #    """ Assert that feed data is loaded from file. """
 
     @patch('feedbot.bot.FeedBot.send_groupchat_message')
     def test_add_feed_existing_name(self, send_to_channel):
