@@ -1,5 +1,5 @@
-Python-feedbot
-==============
+feedbot
+=======
 
 .. image:: https://img.shields.io/travis/liavkoren/feedbot.svg
         :target: https://travis-ci.org/liavkoren/feedbot

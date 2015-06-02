@@ -1,5 +1,5 @@
-Python-feedbot
-==============
+feedbot
+=======
 
 .. image:: https://img.shields.io/travis/liavkoren/feedbot.svg :target:
 https://travis-ci.org/liavkoren/feedbot
@@ -58,15 +58,17 @@ FeedBot has a few user-definable settings. To override the default
 settings, simply create a shell environment variable with the correct
 setting-key and value.
 
-FEED\_HISTORY\_QUEUE\_LENGTH: Every feed stores a history of entries
-that have already been shown in the channel. This settings controls how
-many entries that queue holds. Default is 200. FEEDBOT\_DATA\_DIRECTORY:
-The location on disk where the FeedBot will save feeds data. Feed data
-is saved as human readable JSON. By default FeedBot will attempt to find
-the current user's home directory and create a ~/.feedbot directory
-there. If $HOME is not set, FeedBot will issue a warning and attempt to
-create a directory in /tmp/feedbot FEEDBOT\_DATA\_FILENAME: Name of the
-FeedBot data file. Default is ``feedbot.conf``
+-  FEED\_HISTORY\_QUEUE\_LENGTH: Every feed stores a history of entries
+   that have already been shown in the channel. This settings controls
+   how many entries that queue holds. Default is 200.
+-  FEEDBOT\_DATA\_DIRECTORY: The location on disk where the FeedBot will
+   save feeds data. Feed data is saved as human readable JSON. By
+   default FeedBot will attempt to find the current user's home
+   directory and create a ~/.feedbot directory there. If ``$HOME`` is
+   not set, FeedBot will issue a warning and attempt to create a
+   directory in /tmp/feedbot
+-  FEEDBOT\_DATA\_FILENAME: Name of the FeedBot data file. Default is
+   ``feedbot.conf``
 
 Credits
 -------
