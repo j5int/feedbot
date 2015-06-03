@@ -47,7 +47,7 @@ setup(
     long_description=README + '\n\n' + HISTORY,
     author="Liav Koren",
     author_email='liav@vmfamrms.com',
-    url='https://github.com/vmfarms/feedbot',
+    url='https://github.com/liavkoren/feedbot',
     packages=find_packages(),
     include_package_data=True,
     setup_requires=["setuptools_git >= 0.3"],
@@ -60,7 +60,7 @@ setup(
     zip_safe=False,
     keywords='feedbot',
     classifiers=[
-        'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: Apache Software License',
         'Natural Language :: English',
