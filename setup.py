@@ -28,8 +28,8 @@ REQUIREMENTS = [
     'Pygments>=2.0.2',
     'pytz>=2014.10',
     'six>=1.9.0',
-    'Sphinx>=1.2.3',
-    'sphinxcontrib-napoleon>=0.3.6',
+    'Sphinx==1.2.3',
+    'sphinxcontrib-napoleon==0.3.6',
     'wheel>=0.24.0',
     'xmpppy>=0.5.2',
 ]
