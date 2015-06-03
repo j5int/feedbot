@@ -9,4 +9,4 @@ python:
 install: python setup.py install
 
 # command to run tests, e.g. python setup.py test
-script: python setup.py test
+script: py.test feedbot
