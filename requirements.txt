@@ -14,4 +14,5 @@ Sphinx==1.2.3
 sphinxcontrib-napoleon==0.3.6
 wheel==0.24.0
 xmpppy==0.5.2
+# Paatched version of xmpppy
 git+https://github.com/ArchipelProject/xmpppy.git
