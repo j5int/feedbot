@@ -20,10 +20,27 @@ Features
    provides a set of simple commands to blacklist terms from feeds, and
    a simple interface to add, remove and read feed stories.
 
+Installing
+----------
+Feedbot runs as an `application rather than a library`_  because it has concrete dependencies on versions of Jabberbot and xmpppy that are not available on the Cheeseshop.
+
+.. _application rather than a library: https://caremad.io/2013/07/setup-vs-requirement/
+
+Having said that, installation is still straightforward.
+
+``$ git clone https://github.com/liavkoren/feedbot.git``
+
+followed by
+
+``$ python pip install -r requirements.txt``
+
+If you would like to work on Feedbot, simply install the test_requirments from test_requirements.txt. Docs can be build from the ``doc/`` directory with
+
+``$ make html``
+
 Quickstart
 ----------
 
--  ``pip install feedbot``
 -  A minimal install requires setting up a script that will launch
    Feedbot with the correct settings:
 
@@ -33,23 +50,25 @@ Eg:
 
     import logging
     from feedbot import bot
-    from . import feedbot_settings as settings
+
+    BOT_NICKNAME = 'Feedbot'
+    BOT_PASSWORD = 'l33t'
+    BOT_USERNAME = 'feedbot@botbot.org'
+    CHATROOM = 'bot-party@conference.bot.org'
+    SERVER_IP = '0.0.0.0'
 
     if __name__ == '__main__':
-        logger = logging.getLogger(__name__)
-        chatroom = settings.CHATROOMS['default']
-        feedbot = FeedBot(
-            chatroom,
-            settings.BOT_USERNAME,
-            settings.BOT_PASSWORD,
-            server=settings.SERVER_IP,
-            command_prefix=settings.COMMAND_PREFIX,
+        feedbot = bot.FeedBot(
+            CHATROOM,
+            BOT_USERNAME,
+            BOT_PASSWORD,
+            server=SERVER_IP,
         )
 
-        logger.info("RssBot is alive")
-        feedbot.muc_join_room(chatroom, settings.BOT_NICKNAME)
+        logging.info("Feedbot is alive")
+        feedbot.muc_join_room(CHATROOM, BOT_NICKNAME)
         feedbot.serve_forever()
-        logger.info("RssBot is dead")
+        logging.info("Feedbot is dead")
 
 Settings
 --------
