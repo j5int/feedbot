@@ -1,11 +1,8 @@
 feedbot
 =======
 
-.. image:: https://img.shields.io/travis/liavkoren/feedbot.svg
+.. image:: https://travis-ci.org/liavkoren/feedbot.svg?branch=app
     :target: https://travis-ci.org/liavkoren/feedbot
-
-.. image:: https://img.shields.io/pypi/v/feedbot.svg
-    :target: https://pypi.python.org/pypi/feedbot
 
 A Python jabberbot project to monitor RSS feeds in a chatroom.
 
