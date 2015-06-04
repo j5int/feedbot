@@ -4,18 +4,21 @@ feedbot
 .. image:: https://travis-ci.org/liavkoren/feedbot.svg?branch=app
     :target: https://travis-ci.org/liavkoren/feedbot
 
+.. image:: https://readthedocs.org/projects/feedbot/badge/?version=latest
+    :target: https://feedbot.readthedocs.org.
+
 A Python jabberbot project to monitor RSS feeds in a chatroom.
 
--  Free software: BSD license
+-  Free software: Apache License
 -  Documentation: https://feedbot.readthedocs.org.
 
-Features
---------
+Description
+-----------
 
--  Feedbot is a Jabberbot based chatbot that will sit in your xmpppy
-   chatroom and monitor RSS and Atom feeds for you. It currently
-   provides a set of simple commands to blacklist terms from feeds, and
-   a simple interface to add, remove and read feed stories.
+Feedbot is a Jabberbot based chatbot that will sit in your chatroom and monitor
+RSS and Atom feeds for you. It currently provides a set of simple commands to
+blacklist terms from feeds, and a simple interface to add, remove and read
+feeds and stories.
 
 Installing
 ----------
@@ -38,8 +41,7 @@ If you would like to work on Feedbot, simply install the test_requirments from t
 Quickstart
 ----------
 
--  A minimal install requires setting up a script that will launch
-   Feedbot with the correct settings:
+A minimal install requires setting up a script that will launch Feedbot with the correct settings:
 
 Eg:
 
@@ -70,9 +72,8 @@ Eg:
 Settings
 --------
 
-FeedBot has a few user-definable settings. To override the default
-settings, simply create a shell environment variable with the correct
-setting-key and value.
+FeedBot has a few user-definable settings. To override the default settings,
+simply create an environment variable with the correct settings-key and value.
 
 -  FEED\_HISTORY\_QUEUE\_LENGTH: Every feed stores a history of entries
    that have already been shown in the channel. This settings controls
@@ -91,5 +92,5 @@ Credits
 
 Built at VM Farms, by Liav Koren using Feedparser and Jabberbot. Tests
 are built with pytest and mock. Packaging was done with Cookiecutter and
-Jeff Knupp's excellent walkthrough
+Jeff Knupp's excellent walk-through:
 http://www.jeffknupp.com/blog/2013/08/16/open-sourcing-a-python-project-the-right-way/
