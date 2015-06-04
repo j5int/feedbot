@@ -18,26 +18,25 @@ with open('HISTORY.rst') as history_file:
 
 REQUIREMENTS = [
     'jabberbot==0.15',
-    'beautifulsoup4==4.3.2',
-    'feedparser==5.1.3',
-    'humanize==0.5.1',
-    'docutils==0.12',
-    'Jinja2==2.7.3',
-    'MarkupSafe==0.23',
-    'pockets==0.2.4',
-    'Pygments==2.0.2',
-    'pytz==2014.10',
-    'six==1.9.0',
+    'beautifulsoup4>=4.3.2',
+    'feedparser>=5.1.3',
+    'humanize>=0.5.1',
+    'docutils>=0.12',
+    'Jinja2>=2.7.3',
+    'MarkupSafe>=0.23',
+    'pockets>=0.2.4',
+    'Pygments>=2.0.2',
+    'pytz>=2014.10',
+    'six>=1.9.0',
     'Sphinx==1.2.3',
     'sphinxcontrib-napoleon==0.3.6',
-    'wheel==0.24.0',
-    'xmpppy==0.5.2',
+    'wheel>=0.24.0',
+    'xmpppy>=0.5.2',
 ]
 
 TEST_REQUIREMENTS = [
-    'pytest==2.7.0',
-    'pytest-cov==1.8.1',
-    'mock==1.0.1',
+    'pytest>=2.7.0',
+    'mock>=1.0.1',
 ]
 
 setup(
@@ -47,7 +46,7 @@ setup(
     long_description=README + '\n\n' + HISTORY,
     author="Liav Koren",
     author_email='liav@vmfamrms.com',
-    url='https://github.com/vmfarms/feedbot',
+    url='https://github.com/liavkoren/feedbot',
     packages=find_packages(),
     include_package_data=True,
     setup_requires=["setuptools_git >= 0.3"],
@@ -60,9 +59,9 @@ setup(
     zip_safe=False,
     keywords='feedbot',
     classifiers=[
-        'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: BSD License',
+        'License :: OSI Approved :: Apache Software License',
         'Natural Language :: English',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2',
