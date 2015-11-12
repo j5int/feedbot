@@ -23,6 +23,9 @@ FEED_ADD_HELP = '\n'.join([
     'To add an RSS feed for monitoring, call `/add_feed` with a `name` and URL.',
     'Eg: `/add_feed foobar http://foobar.org/rss/quux.rss`.'])
 
+FEED_SCHEDULE_HELP = '\n'.join([
+    'To schedule a RSS feed, call `/schedule_feed` with a `name` and a number of minutes.',
+    'Eg: `/schedule_feed foobar 15`.'])
 
 FEED_REMOVE_HELP = '\n'.join([
     'Sorry, couldn\'t find that feed.',

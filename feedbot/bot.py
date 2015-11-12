@@ -23,10 +23,12 @@ are you'll lose your feeds when the bot exits.)
 
 from __future__ import absolute_import
 from collections import deque
-from datetime import datetime
+from datetime import datetime, timedelta
 import json
 import logging
 import os
+import threading
+import time
 
 import humanize
 from jabberbot import (
@@ -57,9 +59,37 @@ class FeedBot(JabberBot):
             kwargs['command_prefix'] = '/'
         super(FeedBot, self).__init__(bot_name, bot_password, *args, **kwargs)
         self._init_data_dir()
+        self.schedules = {}
         self.feeds = self._load_feed_data()
         queue_length = int(os.getenv('FEED_HISTORY_QUEUE_LENGTH', 200))
         self.entry_history = deque(maxlen=queue_length)
+        self.poll_thread = threading.Thread(name="poll_feeds", target=self.poll_feeds)
+        self.poll_thread.daemon = True
+
+    def start_poller(self):
+        self.poll_thread.start()
+
+    def poll_feeds(self):
+        last_checks = {}
+        while True:
+            time.sleep(10)
+            poll_time = utc_now()
+            for feed_name, freq in self.schedules.items():
+                last_check = last_checks.get(feed_name, None)
+                if not last_check or last_check < poll_time - timedelta(minutes=freq):
+                    logging.info("Checking %s", feed_name)
+                    last_checks[feed_name] = utc_now()
+                    try:
+                        feed = self.feeds[feed_name]
+                        feed_entries = feed.get_filtered_feed()
+                        entries_limit = int(os.environ.get('FEEDBOT_STORY_LIMIT', 5))
+                        entries_limit = min(len(feed_entries), entries_limit)
+                        feed_entries = feed_entries[:entries_limit]
+                        unseen_entries = [entry for entry in feed_entries if not self._seen_entry(entry)]
+                        if unseen_entries:
+                            self._print_feed(feed.name, unseen_entries)
+                    except Exception, e:
+                        logging.warning("Error checking %s: %s", feed_name, e)
 
     def __repr__(self):
         return "{0}({1}, {2})".format(type(self).__name__, self.chatroom, self.bot_name)
@@ -87,8 +117,11 @@ class FeedBot(JabberBot):
             with open(self.data_file, 'r') as data_file:
                 serialized_feed_data = json.load(data_file)
                 for feed_data in serialized_feed_data:
+                    schedule_freq = feed_data.pop('schedule', None)
                     deserialized_feed = Feed.from_dict(feed_data)
                     feeds[deserialized_feed.name] = deserialized_feed
+                    if schedule_freq is not None:
+                        self.schedules[deserialized_feed.name] = schedule_freq
         except:  # We never want to blow up on instantiating the bot.
             message = messages.FEED_DATA_LOAD_ERROR.format(path=self.data_file)
             self.send_groupchat_message(message)
@@ -126,7 +159,12 @@ class FeedBot(JabberBot):
             error message is sent to the channel, and an IOError is raised.
         """
         try:
-            feed_data = [feed.to_dict() for feed in self.feeds.values()]
+            feed_data = []
+            for feed_name, feed in self.feeds.items():
+                feed_dict = feed.to_dict()
+                if feed_name in self.schedules:
+                    feed_dict['schedule'] = self.schedules[feed_name]
+                feed_data.append(feed_dict)
             with open(self.data_file, 'r+') as data_file:
                 data_file.write(json.dumps(feed_data))
                 return True
@@ -142,6 +180,34 @@ class FeedBot(JabberBot):
     def get_feed_urls(self):
         """ Return URLs of Feeds. """
         return [feed.url for feed in self.feeds.values()]
+
+    @botcmd
+    def schedule_feed(self, msg, args):
+        """
+        Set a schedule for feed checking
+        Feed name should not contain whitespace, and can be * for all feeds
+        Time is specified in minutes
+        example usage: '/schedule_feed seclist 15'
+        """
+        try:
+            name, freq = clean_args(args)
+            freq = int(freq)
+            if name == '*':
+                for name in self.feeds:
+                    self.set_schedule(name, freq)
+                self._save_feed_data()
+            elif name not in self.feeds:
+                self.send_groupchat_message("FAILURE")
+            else:
+                self.set_schedule(name, freq)
+                self._save_feed_data()
+        except ValueError:
+            self.send_groupchat_message(messages.FEED_SCHEDULE_HELP)
+        except IOError:
+            pass
+
+    def set_schedule(self, feed_name, freq):
+        self.schedules[feed_name] = freq
 
     @botcmd
     def add_feed(self, msg, args):
