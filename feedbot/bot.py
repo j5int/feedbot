@@ -165,7 +165,7 @@ class FeedBot(JabberBot):
                 if feed_name in self.schedules:
                     feed_dict['schedule'] = self.schedules[feed_name]
                 feed_data.append(feed_dict)
-            with open(self.data_file, 'r+') as data_file:
+            with open(self.data_file, 'w') as data_file:
                 data_file.write(json.dumps(feed_data))
                 return True
         except Exception as exception:
