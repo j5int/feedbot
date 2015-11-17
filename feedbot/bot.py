@@ -412,16 +412,19 @@ class FeedBot(JabberBot):
 
     def _print_feed(self, feed_name, entries):
         """ Print a Feed to the channel. """
-        self.send_groupchat_message(messages.FEED_HEADER.format(feed_name=feed_name))
+        # self.send_groupchat_message(messages.FEED_HEADER.format(feed_name=feed_name))
         for entry in entries:
             if self._seen_entry(entry):
                 continue
             self._add_entry_to_history(entry)
             self._print_entry(entry)
-            self.send_groupchat_message(messages.ENTRY_SEPERATOR)
+            # self.send_groupchat_message(messages.ENTRY_SEPERATOR)
 
     def _print_entry(self, entry):
         """ Print a Feed entry to the channel. """
+        entry_string = "<div>%(title)s at <a href='%(link)s'>%(published)s</a></div>" % entry
+        self.send_groupchat_message(entry_string)
+        return
         fields = ['title', 'published', 'authors', 'link', 'summary']
         for field in fields:
             if field in entry:
@@ -446,7 +449,7 @@ class FeedBot(JabberBot):
         """ Dump all filtered feeds into the channel. """
         for feed in self.get_feeds():
             self.dump_feed("", feed.name)
-            self.send_groupchat_message(messages.FEED_SEPERATOR)
+            # self.send_groupchat_message(messages.FEED_SEPERATOR)
 
     @botcmd
     def set_age_filter(self, mess, args):
